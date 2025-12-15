@@ -23,7 +23,7 @@ public class Book {
     private BookGenre genre;
     @Column(precision = 18, scale = 2)
     private BigDecimal price;
-    @ManyToOne
+    @ManyToOne(cascade =  CascadeType.PERSIST)
     @JoinColumn(name = "author_id")
     private Author authorId;
 

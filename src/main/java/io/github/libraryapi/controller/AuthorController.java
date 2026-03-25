@@ -36,7 +36,7 @@ public class AuthorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorDTO> update(@PathVariable String id) {
+    public ResponseEntity<AuthorDTO> findById(@PathVariable String id) {
         UUID idAuthor = UUID.fromString(id);
         Optional<Author> author = service.findById(idAuthor);
         if (author.isPresent()) {
@@ -90,5 +90,18 @@ public class AuthorController {
                 ))
                 .toList();
         return ResponseEntity.ok(authorDTOs);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(@PathVariable String id,@RequestBody AuthorDTO dto) {
+        UUID idAuthor = UUID.fromString(id);
+        Optional<Author> existingAuthor = service.findById(idAuthor);
+        if (existingAuthor.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Author authorEntity = dto.toEntity();
+        authorEntity.setId(idAuthor);
+        service.update(authorEntity);
+        return ResponseEntity.noContent().build();
     }
 }

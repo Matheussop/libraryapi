@@ -53,4 +53,11 @@ public class AuthorService {
             return findAll();
         }
     }
+
+    public void update(Author author) {
+        if (author.getId() == null) {
+            throw new IllegalArgumentException("ID cannot be null for update");
+        }
+        repository.save(author);
+    }
 }

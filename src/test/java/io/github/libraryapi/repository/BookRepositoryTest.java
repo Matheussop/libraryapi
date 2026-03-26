@@ -6,11 +6,16 @@ import io.github.libraryapi.model.BookGenre;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
+@Transactional
 public class BookRepositoryTest {
 
     @Autowired
@@ -22,6 +27,7 @@ public class BookRepositoryTest {
     @Test
     void save() {
         Author author = new Author();
+
         author.setName("John Doe");
         author.setNationality("American");
         author.setBirthDate(LocalDate.of(1970, 5, 15));
@@ -32,12 +38,13 @@ public class BookRepositoryTest {
         book.setPrice(BigDecimal.valueOf(19.99));
         book.setGenre(BookGenre.FICTION);
         book.setPublish_date(LocalDate.of(2020, 1, 1));
+        book.setCreatedAt(LocalDateTime.now());
 
-        book.setAuthorId(author);
+        book.setAuthor(author);
         Book savedBook = bookRepository.save(book);
-        assert savedBook.getId() != null;
-        bookRepository.deleteById(savedBook.getId());
-        authorRepository.deleteById(author.getId());
+        assertNotNull(savedBook.getId());
+        assertNotNull(savedBook.getAuthor());
+        assertNotNull(savedBook.getAuthor().getId());
 
     }
 
@@ -54,8 +61,9 @@ public class BookRepositoryTest {
         book.setPrice(BigDecimal.valueOf(29.99));
         book.setGenre(BookGenre.FICTION);
         book.setPublish_date(LocalDate.of(2021, 6, 15));
+        book.setCreatedAt(LocalDateTime.now());
 
-        book.setAuthorId(author);
+        book.setAuthor(author);
         Book savedBook = bookRepository.save(book);
 
         var foundBook = bookRepository.findById(savedBook.getId());

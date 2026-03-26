@@ -6,6 +6,8 @@ import io.github.libraryapi.exception.DuplicatedRegisterException;
 import io.github.libraryapi.exception.OperationNotAllowedException;
 import io.github.libraryapi.service.AuthorService;
 import io.github.libraryapi.model.Author;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +20,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/authors")
+@RequiredArgsConstructor
 public class AuthorController {
 
     private final AuthorService service;
-
-    public AuthorController(AuthorService service) {
-        this.service = service;
-    }
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody AuthorDTO author) {

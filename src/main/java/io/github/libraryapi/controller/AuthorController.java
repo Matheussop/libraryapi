@@ -26,7 +26,7 @@ public class AuthorController {
     private final AuthorService service;
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody AuthorDTO author) {
+    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO author) {
         try {
             Author authorEntity = author.toEntity();
             Author saved = service.save(authorEntity);
@@ -106,7 +106,7 @@ public class AuthorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable String id,@RequestBody AuthorDTO dto) {
+    public ResponseEntity<Object> update(@PathVariable String id,@RequestBody @Valid AuthorDTO dto) {
         try {
             UUID idAuthor = UUID.fromString(id);
             Optional<Author> existingAuthor = service.findById(idAuthor);

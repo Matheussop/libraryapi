@@ -1,6 +1,9 @@
 package io.github.libraryapi.controller;
 
 import io.github.libraryapi.controller.dto.AuthorDTO;
+import io.github.libraryapi.controller.dto.ResponseError;
+import io.github.libraryapi.exception.DuplicatedRegisterException;
+import io.github.libraryapi.exception.OperationNotAllowedException;
 import io.github.libraryapi.service.AuthorService;
 import io.github.libraryapi.model.Author;
 import org.springframework.http.HttpStatus;
@@ -24,15 +27,21 @@ public class AuthorController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody AuthorDTO author) {
-        Author authorEntity = author.toEntity();
-        Author saved = service.save(authorEntity);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(saved.getId())
-                .toUri();
-        return ResponseEntity.created(location).build();
+    public ResponseEntity<Object> save(@RequestBody AuthorDTO author) {
+        try {
+            Author authorEntity = author.toEntity();
+            Author saved = service.save(authorEntity);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(saved.getId())
+                    .toUri();
+            return ResponseEntity.created(location).build();
+        } catch (DuplicatedRegisterException e) {
+            var dtoError = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(dtoError.status()).body(dtoError);
+        }
+
     }
 
     @GetMapping("/{id}")
@@ -54,14 +63,19 @@ public class AuthorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        UUID idAuthor = UUID.fromString(id);
-        Optional<Author> author = service.findById(idAuthor);
-        if (author.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<Object> delete(@PathVariable String id) {
+        try {
+            UUID idAuthor = UUID.fromString(id);
+            Optional<Author> author = service.findById(idAuthor);
+            if (author.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            service.deleteById(idAuthor);
+            return ResponseEntity.noContent().build();
+        } catch (OperationNotAllowedException e) {
+            var dtoError = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(dtoError.status()).body(dtoError);
         }
-        service.deleteById(idAuthor);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -93,15 +107,20 @@ public class AuthorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable String id,@RequestBody AuthorDTO dto) {
-        UUID idAuthor = UUID.fromString(id);
-        Optional<Author> existingAuthor = service.findById(idAuthor);
-        if (existingAuthor.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<Object> update(@PathVariable String id,@RequestBody AuthorDTO dto) {
+        try {
+            UUID idAuthor = UUID.fromString(id);
+            Optional<Author> existingAuthor = service.findById(idAuthor);
+            if (existingAuthor.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            Author authorEntity = dto.toEntity();
+            authorEntity.setId(idAuthor);
+            service.update(authorEntity);
+            return ResponseEntity.noContent().build();
+        } catch (DuplicatedRegisterException e) {
+            var dtoError = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(dtoError.status()).body(dtoError);
         }
-        Author authorEntity = dto.toEntity();
-        authorEntity.setId(idAuthor);
-        service.update(authorEntity);
-        return ResponseEntity.noContent().build();
     }
 }

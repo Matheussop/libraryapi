@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "book")
-@ToString(exclude = "authorId")
+@ToString(exclude = "author")
 public class Book {
 
     @Id
@@ -26,7 +26,7 @@ public class Book {
     @Column(precision = 18, scale = 2)
     private BigDecimal price;
     @ManyToOne(cascade =  CascadeType.PERSIST) // fetch lazy don't return author unless called or in transaction
-    @JoinColumn(name = "author_id")
-    private Author authorId;
+    @JoinColumn(name = "id_author")
+    private Author author;
 
 }

@@ -29,7 +29,7 @@ public class Author {
     @Column(length = 50, nullable = false)
     private String nationality;
 
-    @OneToMany(mappedBy = "authorId")
+    @OneToMany(mappedBy = "author")
     private List<Book> books;
 
     @CreatedDate

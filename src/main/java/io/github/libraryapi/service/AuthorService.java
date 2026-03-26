@@ -1,7 +1,10 @@
 package io.github.libraryapi.service;
 
+import io.github.libraryapi.exception.OperationNotAllowedException;
 import io.github.libraryapi.model.Author;
 import io.github.libraryapi.repository.AuthorRepository;
+import io.github.libraryapi.repository.BookRepository;
+import io.github.libraryapi.validator.AuthorValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,12 +14,19 @@ import java.util.UUID;
 @Service
 public class AuthorService {
     private final AuthorRepository repository;
+    private final AuthorValidator validator;
+    private final BookRepository bookRepository;
 
-    public AuthorService(AuthorRepository repository) {
+    public AuthorService(AuthorRepository repository,
+                         AuthorValidator validator,
+                         BookRepository bookRepository) {
         this.repository = repository;
+        this.validator = validator;
+        this.bookRepository = bookRepository;
     }
 
     public Author save(Author author) {
+        validator.validate(author);
         return repository.save(author);
     }
 
@@ -25,6 +35,9 @@ public class AuthorService {
     }
 
     public void deleteById(UUID id) {
+        if (existsBooksByAuthor(id)) {
+            throw new OperationNotAllowedException("Cannot delete author with associated books");
+        }
         repository.deleteById(id);
     }
 
@@ -58,6 +71,11 @@ public class AuthorService {
         if (author.getId() == null) {
             throw new IllegalArgumentException("ID cannot be null for update");
         }
+        validator.validate(author);
         repository.save(author);
+    }
+
+    public boolean existsBooksByAuthor(UUID id) {
+        return bookRepository.existsByAuthor_Id(id);
     }
 }

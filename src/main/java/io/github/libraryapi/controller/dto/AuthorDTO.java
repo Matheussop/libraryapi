@@ -1,6 +1,5 @@
 package io.github.libraryapi.controller.dto;
 
-import io.github.libraryapi.model.Author;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;

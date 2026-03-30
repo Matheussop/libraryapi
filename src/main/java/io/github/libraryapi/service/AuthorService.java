@@ -6,6 +6,8 @@ import io.github.libraryapi.repository.AuthorRepository;
 import io.github.libraryapi.repository.BookRepository;
 import io.github.libraryapi.validator.AuthorValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,6 +63,19 @@ public class AuthorService {
         }
     }
 
+    public List<Author> searchByExample(String name, String nationality) {
+        var author = new Author();
+        author.setName(name);
+        author.setNationality(nationality);
+        ExampleMatcher  exampleMatcher = ExampleMatcher
+                .matching()
+                .withIgnoreNullValues()
+                .withIgnoreCase()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        Example<Author> exampleAuthor = Example.of(author, exampleMatcher);
+        return repository.findAll(exampleAuthor);
+    }
     public void update(Author author) {
         if (author.getId() == null) {
             throw new IllegalArgumentException("ID cannot be null for update");

@@ -93,7 +93,7 @@ public class AuthorController {
 
     @GetMapping("/search")
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(required = false) String name,@RequestParam(required = false) String nationality) {
-        List<Author> authors = service.search(name, nationality);
+        List<Author> authors = service.searchByExample(name, nationality);
         List<AuthorDTO> authorDTOs = authors.stream()
                 .map(author -> new AuthorDTO(
                         author.getId(),

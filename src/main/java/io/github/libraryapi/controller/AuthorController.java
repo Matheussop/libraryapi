@@ -2,6 +2,7 @@ package io.github.libraryapi.controller;
 
 import io.github.libraryapi.controller.dto.AuthorDTO;
 import io.github.libraryapi.controller.dto.ResponseError;
+import io.github.libraryapi.controller.mappers.AuthorMapper;
 import io.github.libraryapi.exception.DuplicatedRegisterException;
 import io.github.libraryapi.exception.OperationNotAllowedException;
 import io.github.libraryapi.service.AuthorService;
@@ -24,12 +25,13 @@ import java.util.UUID;
 public class AuthorController {
 
     private final AuthorService service;
+    private final AuthorMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO author) {
+    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO dto) {
         try {
-            Author authorEntity = author.toEntity();
-            Author saved = service.save(authorEntity);
+            Author author = mapper.toEntity(dto);
+            Author saved = service.save(author);
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{id}")
@@ -49,12 +51,7 @@ public class AuthorController {
         Optional<Author> author = service.findById(idAuthor);
         if (author.isPresent()) {
             Author authorEntity = author.get();
-            AuthorDTO authorDTO = new AuthorDTO(
-                    authorEntity.getId(),
-                    authorEntity.getName(),
-                    authorEntity.getBirthDate(),
-                    authorEntity.getNationality()
-            );
+            AuthorDTO authorDTO = mapper.toAuthorDTO(authorEntity);
             return ResponseEntity.ok(authorDTO);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -95,12 +92,7 @@ public class AuthorController {
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(required = false) String name,@RequestParam(required = false) String nationality) {
         List<Author> authors = service.searchByExample(name, nationality);
         List<AuthorDTO> authorDTOs = authors.stream()
-                .map(author -> new AuthorDTO(
-                        author.getId(),
-                        author.getName(),
-                        author.getBirthDate(),
-                        author.getNationality()
-                ))
+                .map(mapper::toAuthorDTO)
                 .toList();
         return ResponseEntity.ok(authorDTOs);
     }
@@ -113,7 +105,7 @@ public class AuthorController {
             if (existingAuthor.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            Author authorEntity = dto.toEntity();
+            Author authorEntity = mapper.toEntity(dto);
             authorEntity.setId(idAuthor);
             service.update(authorEntity);
             return ResponseEntity.noContent().build();

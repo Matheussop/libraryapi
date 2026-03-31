@@ -37,7 +37,7 @@ public class BookRepositoryTest {
         book.setTitle("Sample Book");
         book.setPrice(BigDecimal.valueOf(19.99));
         book.setGenre(BookGenre.FICTION);
-        book.setPublish_date(LocalDate.of(2020, 1, 1));
+        book.setPublishDate(LocalDate.of(2020, 1, 1));
         book.setCreatedAt(LocalDateTime.now());
 
         book.setAuthor(author);
@@ -60,7 +60,7 @@ public class BookRepositoryTest {
         book.setTitle("Another Sample Book");
         book.setPrice(BigDecimal.valueOf(29.99));
         book.setGenre(BookGenre.FICTION);
-        book.setPublish_date(LocalDate.of(2021, 6, 15));
+        book.setPublishDate(LocalDate.of(2021, 6, 15));
         book.setCreatedAt(LocalDateTime.now());
 
         book.setAuthor(author);

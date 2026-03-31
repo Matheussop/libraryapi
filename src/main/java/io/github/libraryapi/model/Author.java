@@ -15,7 +15,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "author", schema = "public")
-@ToString(exclude = "books")
+@ToString(exclude = {"books"})
 @EntityListeners(AuditingEntityListener.class)
 public class Author {
 
@@ -29,7 +29,9 @@ public class Author {
     @Column(length = 50, nullable = false)
     private String nationality;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY
+//            , cascade = CascadeType.ALL
+    )
     private List<Book> books;
 
     @CreatedDate

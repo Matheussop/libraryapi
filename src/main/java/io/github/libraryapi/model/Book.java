@@ -31,7 +31,7 @@ public class Book {
     private BookGenre genre;
     @Column(precision = 18, scale = 2)
     private BigDecimal price;
-    @ManyToOne(cascade = CascadeType.PERSIST) // fetch lazy don't return author unless called or in transaction
+    @ManyToOne(fetch = FetchType.LAZY) // fetch lazy don't return author unless called or in transaction
     @JoinColumn(name = "id_author")
     private Author author;
 

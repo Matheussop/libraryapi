@@ -13,6 +13,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,11 +28,13 @@ public class BookController {
     public ResponseEntity<Object> createBook(@RequestBody @Valid CreateBookDTO createBookDTO) {
         try{
             Book book = mapper.toEntityCreate(createBookDTO);
-
-            // send the entity to service for validattion and save on base
-            // create an url to access the book data
-            // return created code with header location
-            return ResponseEntity.ok(createBookDTO);
+            Book saved = bookService.save(book);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(saved.getId())
+                    .toUri();
+            return ResponseEntity.created(location).build();
         }catch (DuplicatedRegisterException e){
             var errorDTO = ResponseError.conflict(e.getMessage());
             return ResponseEntity.status(errorDTO.status()).body(errorDTO);

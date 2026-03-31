@@ -25,7 +25,8 @@ public class Book {
 
     private String isbn;
     private String title;
-    private LocalDate publish_date;
+    @Column(name = "publish_date")
+    private LocalDate publishDate;
     @Enumerated(EnumType.STRING)
     private BookGenre genre;
     @Column(precision = 18, scale = 2)

@@ -1,6 +1,8 @@
 package io.github.libraryapi.controller.common;
 
 import io.github.libraryapi.controller.dto.ResponseError;
+import io.github.libraryapi.exception.DuplicatedRegisterException;
+import io.github.libraryapi.exception.OperationNotAllowedException;
 import org.springframework.http.HttpStatus;
 
 import io.github.libraryapi.controller.dto.ErrorField;
@@ -29,5 +31,24 @@ public class GlobalExceptionHandler {
                 HttpStatus.UNPROCESSABLE_ENTITY.value(),
                 "Validation Error.",
                 errorList);
+    }
+
+    @ExceptionHandler(DuplicatedRegisterException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseError handleDuplicatedRegisterException(DuplicatedRegisterException e) {
+        return ResponseError.conflict(e.getMessage());
+    }
+
+    @ExceptionHandler(OperationNotAllowedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseError handleOperationNotAllowedException(
+            OperationNotAllowedException e){
+        return ResponseError.defaultResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseError handleGenericException(RuntimeException e) {
+        return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(),"An unexpected error occurred: " + e.getMessage(), List.of());
     }
 }

@@ -14,7 +14,6 @@ public class BookService {
 
     public Book save(Book book) {
         validator.validate(book);
-        System.out.println(book);
         return repository.save(book);
     }
 

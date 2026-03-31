@@ -22,7 +22,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/authors")
 @RequiredArgsConstructor
-public class AuthorController {
+public class AuthorController implements GenericController{
 
     private final AuthorService service;
     private final AuthorMapper mapper;
@@ -31,12 +31,8 @@ public class AuthorController {
     public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO dto) {
         try {
             Author author = mapper.toEntity(dto);
-            Author saved = service.save(author);
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(saved.getId())
-                    .toUri();
+            service.save(author);
+            URI location = generateHeaderLocation(author.getId());
             return ResponseEntity.created(location).build();
         } catch (DuplicatedRegisterException e) {
             var dtoError = ResponseError.conflict(e.getMessage());

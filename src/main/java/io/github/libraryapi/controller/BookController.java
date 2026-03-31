@@ -20,20 +20,16 @@ import java.net.URI;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/books")
-public class BookController {
+public class BookController implements GenericController{
     private final BookService bookService;
     private final BookMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> createBook(@RequestBody @Valid CreateBookDTO createBookDTO) {
+    public ResponseEntity<Object> createBook(@RequestBody @Valid CreateBookDTO dto) {
         try{
-            Book book = mapper.toEntityCreate(createBookDTO);
-            Book saved = bookService.save(book);
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(saved.getId())
-                    .toUri();
+            Book book = mapper.toEntityCreate(dto);
+            bookService.save(book);
+            URI location = generateHeaderLocation(book.getId());
             return ResponseEntity.created(location).build();
         }catch (DuplicatedRegisterException e){
             var errorDTO = ResponseError.conflict(e.getMessage());

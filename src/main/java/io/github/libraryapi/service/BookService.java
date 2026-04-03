@@ -6,15 +6,27 @@ import io.github.libraryapi.validator.BookValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository repository;
     private final BookValidator validator;
 
-    public Book save(Book book) {
+    public void save(Book book) {
         validator.validate(book);
-        return repository.save(book);
+        repository.save(book);
+    }
+
+    public List<Book> findAll() {
+        return repository.findAll();
+    }
+
+    public Optional<Book> findById(UUID id) {
+        return repository.findById(id);
     }
 
 }

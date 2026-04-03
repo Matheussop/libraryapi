@@ -19,13 +19,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/books")
 public class BookController implements GenericController {
-    private final BookService bookService;
+    private final BookService service;
     private final BookMapper mapper;
 
     @PostMapping
     public ResponseEntity<Void> createBook(@RequestBody @Valid CreateBookDTO dto) {
         Book book = mapper.toEntityCreate(dto);
-        bookService.save(book);
+        service.save(book);
         URI location = generateHeaderLocation(book.getId());
         return ResponseEntity.created(location).build();
 
@@ -33,7 +33,7 @@ public class BookController implements GenericController {
 
     @GetMapping
     public ResponseEntity<List<ResultBookDTO>> getAllBooks() {
-        List<Book> books = bookService.findAll();
+        List<Book> books = service.findAll();
         if (!books.isEmpty()) {
             List<ResultBookDTO> booksDTO = books.stream().map(mapper::toResultDTO).toList();
             return ResponseEntity.ok(booksDTO);
@@ -46,10 +46,20 @@ public class BookController implements GenericController {
     public ResponseEntity<ResultBookDTO> getBookById(@PathVariable String id) {
         UUID idBook = UUID.fromString(id);
 
-        return bookService.findById(idBook)
+        return service.findById(idBook)
                 .map(book -> {
                     var bookDto = mapper.toResultDTO(book);
                     return ResponseEntity.ok(bookDto);
                 }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        UUID idBook = UUID.fromString(id);
+        return service.findById(idBook)
+                .<ResponseEntity<Void>>map(book -> {
+                    service.delete(idBook);
+                    return ResponseEntity.noContent().build();
+                }).orElseGet(() ->  ResponseEntity.notFound().build());
     }
 }

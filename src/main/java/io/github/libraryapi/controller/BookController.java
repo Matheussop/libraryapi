@@ -4,6 +4,7 @@ import io.github.libraryapi.controller.dto.CreateBookDTO;
 import io.github.libraryapi.controller.dto.ResultBookDTO;
 import io.github.libraryapi.controller.mappers.BookMapper;
 import io.github.libraryapi.model.Book;
+import io.github.libraryapi.model.BookGenre;
 import io.github.libraryapi.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -61,5 +63,41 @@ public class BookController implements GenericController {
                     service.delete(idBook);
                     return ResponseEntity.noContent().build();
                 }).orElseGet(() ->  ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ResultBookDTO>> search(@RequestParam(required = false) String isbn,
+                                                     @RequestParam(required = false) String authorName,
+                                                     @RequestParam(required = false) String title,
+                                                     @RequestParam(required = false) BookGenre genre,
+                                                     @RequestParam(required = false) Integer publishDate){
+        List<Book> response = service.search(isbn, authorName, title, genre, publishDate);
+        List<ResultBookDTO> bookList = response
+                .stream()
+                .map(mapper::toResultDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(bookList);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Void> update(
+            @PathVariable String id,
+            @RequestBody @Valid CreateBookDTO dto
+    ){
+        UUID idBook = UUID.fromString(id);
+        return service.findById(idBook).<ResponseEntity<Void>>map(
+                book -> {
+                    Book bookEntity = mapper.toEntityCreate(dto);
+
+                    book.setIsbn(bookEntity.getIsbn());
+                    book.setAuthor(bookEntity.getAuthor());
+                    book.setGenre(bookEntity.getGenre());
+                    book.setPublishDate(bookEntity.getPublishDate());
+                    book.setTitle(bookEntity.getTitle());
+                    book.setPrice(bookEntity.getPrice());
+                    service.update(book);
+                    return ResponseEntity.noContent().build();
+                }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

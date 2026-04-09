@@ -19,12 +19,4 @@ public record AuthorDTO(
         @NotBlank(message = "Required field")
         @Size(max = 50, min = 2, message = "Field does not match the expected format")
         String nationality) {
-    public AuthorDTO {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Name cannot be null or blank");
-        }
-        if (birthDate == null) {
-            throw new IllegalArgumentException("Birth date cannot be null");
-        }
-    }
 }

@@ -2,6 +2,7 @@ package io.github.libraryapi.controller.common;
 
 import io.github.libraryapi.controller.dto.ResponseError;
 import io.github.libraryapi.exception.AuthorNotFoundException;
+import io.github.libraryapi.exception.BookNotFoundException;
 import io.github.libraryapi.exception.DuplicatedRegisterException;
 import io.github.libraryapi.exception.OperationNotAllowedException;
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthorNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseError handleAuthorNotFoundException(AuthorNotFoundException e){
+        return new ResponseError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(AuthorNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ResponseError handleBookNotFoundException(BookNotFoundException e){
         return new ResponseError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(), List.of());
     }
 

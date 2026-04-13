@@ -2,6 +2,7 @@ package io.github.libraryapi.service;
 
 import io.github.libraryapi.controller.dto.CreateBookDTO;
 import io.github.libraryapi.controller.mappers.BookMapper;
+import io.github.libraryapi.exception.BookNotFoundException;
 import io.github.libraryapi.model.Author;
 import io.github.libraryapi.model.Book;
 import io.github.libraryapi.model.BookGenre;
@@ -92,10 +93,10 @@ public class BookService {
                     book.setPrice(bookEntity.getPrice());
                     validator.validate(book);
                     return repository.save(book);
-                }).orElseThrow(() -> new IllegalArgumentException("Book not found with id: " + id));
+                }).orElseThrow(() -> new BookNotFoundException(id));
     }
 
     private Author findExistingAuthor(UUID authorId){
-        return authorRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("Author not found with id: " + authorId));
+        return authorRepository.findById(authorId).orElseThrow(() -> new BookNotFoundException(authorId));
     }
 }

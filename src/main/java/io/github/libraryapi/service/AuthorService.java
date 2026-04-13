@@ -1,5 +1,8 @@
 package io.github.libraryapi.service;
 
+import io.github.libraryapi.controller.dto.AuthorDTO;
+import io.github.libraryapi.controller.mappers.AuthorMapper;
+import io.github.libraryapi.exception.AuthorNotFoundException;
 import io.github.libraryapi.exception.OperationNotAllowedException;
 import io.github.libraryapi.model.Author;
 import io.github.libraryapi.repository.AuthorRepository;
@@ -20,10 +23,11 @@ public class AuthorService {
     private final AuthorRepository repository;
     private final AuthorValidator validator;
     private final BookRepository bookRepository;
+    private final AuthorMapper mapper;
 
-    public Author save(Author author) {
+    public void save(Author author) {
         validator.validate(author);
-        return repository.save(author);
+        repository.save(author);
     }
 
     public Optional<Author> findById(UUID id) {
@@ -76,12 +80,14 @@ public class AuthorService {
         Example<Author> exampleAuthor = Example.of(author, exampleMatcher);
         return repository.findAll(exampleAuthor);
     }
-    public void update(Author author) {
-        if (author.getId() == null) {
-            throw new IllegalArgumentException("ID cannot be null for update");
-        }
-        validator.validate(author);
-        repository.save(author);
+    public void update(UUID id, AuthorDTO dto) {
+        findById(id).map((author) -> {
+            Author authorEntity = mapper.toEntity(dto);
+            authorEntity.setId(id);
+
+            validator.validate(author);
+            return repository.save(author);
+        }).orElseThrow(() -> new AuthorNotFoundException(id));
     }
 
     public boolean existsBooksByAuthor(UUID id) {

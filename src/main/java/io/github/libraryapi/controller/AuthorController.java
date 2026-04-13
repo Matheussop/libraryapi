@@ -59,12 +59,7 @@ public class AuthorController implements GenericController {
     public ResponseEntity<List<AuthorDTO>> findAll() {
         List<Author> authors = service.findAll();
         List<AuthorDTO> authorDTOs = authors.stream()
-                .map(author -> new AuthorDTO(
-                        author.getId(),
-                        author.getName(),
-                        author.getBirthDate(),
-                        author.getNationality()
-                ))
+                .map(mapper::toAuthorDTO)
                 .toList();
         return ResponseEntity.ok(authorDTOs);
     }
@@ -81,13 +76,7 @@ public class AuthorController implements GenericController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable String id, @RequestBody @Valid AuthorDTO dto) {
         UUID idAuthor = UUID.fromString(id);
-        Optional<Author> existingAuthor = service.findById(idAuthor);
-        if (existingAuthor.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        Author authorEntity = mapper.toEntity(dto);
-        authorEntity.setId(idAuthor);
-        service.update(authorEntity);
+        service.update(idAuthor, dto);
         return ResponseEntity.noContent().build();
     }
 }

@@ -25,9 +25,6 @@ public class AuthorValidator {
                 author.getName(),
                 author.getBirthDate(),
                 author.getNationality());
-        if(author.getId() == null) {
-            return true;
-        }
          return authorFound.filter(value -> !author.getId().equals(value.getId())).isPresent();
 
      }

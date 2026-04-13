@@ -46,6 +46,12 @@ public class GlobalExceptionHandler {
         return ResponseError.defaultResponse(e.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ResponseError handleIllegalArgumentException(IllegalArgumentException e){
+        return new ResponseError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(), List.of());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseError handleGenericException(RuntimeException e) {

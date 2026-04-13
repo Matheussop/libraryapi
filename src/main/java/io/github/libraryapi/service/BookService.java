@@ -1,7 +1,11 @@
 package io.github.libraryapi.service;
 
+import io.github.libraryapi.controller.dto.CreateBookDTO;
+import io.github.libraryapi.controller.mappers.BookMapper;
+import io.github.libraryapi.model.Author;
 import io.github.libraryapi.model.Book;
 import io.github.libraryapi.model.BookGenre;
+import io.github.libraryapi.repository.AuthorRepository;
 import io.github.libraryapi.repository.BookRepository;
 import io.github.libraryapi.validator.BookValidator;
 import io.micrometer.common.util.StringUtils;
@@ -18,11 +22,17 @@ import static io.github.libraryapi.repository.spec.BookSpecs.*;
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository repository;
+    private final AuthorRepository authorRepository;
     private final BookValidator validator;
+    private final BookMapper mapper;
 
-    public void save(Book book) {
+    public UUID save(CreateBookDTO dto) {
+        Author author = findExistingAuthor(dto.authorId());
+        Book book = mapper.toEntity(dto);
+        book.setAuthor(author);
+
         validator.validate(book);
-        repository.save(book);
+        return repository.save(book).getId();
     }
 
     public List<Book> findAll() {
@@ -68,8 +78,24 @@ public class BookService {
         return repository.findAll(specs);
     }
 
-    public void update(Book book) {
-        validator.validate(book);
-        repository.save(book);
+    public void update(UUID id, CreateBookDTO dto) {
+          findById(id).map(
+                book -> {
+                    Book bookEntity = mapper.toEntity(dto);
+                    Author author = findExistingAuthor(dto.authorId());
+
+                    book.setIsbn(bookEntity.getIsbn());
+                    book.setAuthor(author);
+                    book.setGenre(bookEntity.getGenre());
+                    book.setPublishDate(bookEntity.getPublishDate());
+                    book.setTitle(bookEntity.getTitle());
+                    book.setPrice(bookEntity.getPrice());
+                    validator.validate(book);
+                    return repository.save(book);
+                }).orElseThrow(() -> new IllegalArgumentException("Book not found with id: " + id));
+    }
+
+    private Author findExistingAuthor(UUID authorId){
+        return authorRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("Author not found with id: " + authorId));
     }
 }

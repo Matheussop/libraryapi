@@ -26,9 +26,8 @@ public class BookController implements GenericController {
 
     @PostMapping
     public ResponseEntity<Void> createBook(@RequestBody @Valid CreateBookDTO dto) {
-        Book book = mapper.toEntityCreate(dto);
-        service.save(book);
-        URI location = generateHeaderLocation(book.getId());
+        UUID bookId = service.save(dto);
+        URI location = generateHeaderLocation(bookId);
         return ResponseEntity.created(location).build();
 
     }
@@ -86,18 +85,7 @@ public class BookController implements GenericController {
             @RequestBody @Valid CreateBookDTO dto
     ){
         UUID idBook = UUID.fromString(id);
-        return service.findById(idBook).<ResponseEntity<Void>>map(
-                book -> {
-                    Book bookEntity = mapper.toEntityCreate(dto);
-
-                    book.setIsbn(bookEntity.getIsbn());
-                    book.setAuthor(bookEntity.getAuthor());
-                    book.setGenre(bookEntity.getGenre());
-                    book.setPublishDate(bookEntity.getPublishDate());
-                    book.setTitle(bookEntity.getTitle());
-                    book.setPrice(bookEntity.getPrice());
-                    service.update(book);
-                    return ResponseEntity.noContent().build();
-                }).orElseGet(() -> ResponseEntity.notFound().build());
+        service.update(idBook, dto);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -11,6 +11,9 @@ import io.github.libraryapi.repository.BookRepository;
 import io.github.libraryapi.validator.BookValidator;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -48,11 +51,13 @@ public class BookService {
         repository.deleteById(id);
     }
 
-    public List<Book> search(String isbn,
+    public Page<Book> search(String isbn,
                              String authorName,
                              String title,
                              BookGenre genre,
-                             Integer publishDate) {
+                             Integer publishDate,
+                             Integer page,
+                             Integer size) {
 
 //        Specification<Book> spec = Specification.where(BookSpecs.isbnEqual(isbn))
 //                .or(BookSpecs.titleLike(authorName))
@@ -76,7 +81,8 @@ public class BookService {
             specs = specs.and(publishDateEqual(publishDate));
         }
 
-        return repository.findAll(specs);
+        Pageable pageRequest = PageRequest.of(page, size);
+        return repository.findAll(specs, pageRequest);
     }
 
     public void update(UUID id, CreateBookDTO dto) {

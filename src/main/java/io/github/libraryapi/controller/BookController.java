@@ -8,6 +8,7 @@ import io.github.libraryapi.model.BookGenre;
 import io.github.libraryapi.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -65,16 +65,16 @@ public class BookController implements GenericController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ResultBookDTO>> search(@RequestParam(required = false) String isbn,
-                                                     @RequestParam(required = false) String authorName,
-                                                     @RequestParam(required = false) String title,
-                                                     @RequestParam(required = false) BookGenre genre,
-                                                     @RequestParam(required = false) Integer publishDate){
-        List<Book> response = service.search(isbn, authorName, title, genre, publishDate);
-        List<ResultBookDTO> bookList = response
-                .stream()
-                .map(mapper::toResultDTO)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<ResultBookDTO>> search(@RequestParam(required = false) String isbn,
+                                                      @RequestParam(required = false) String authorName,
+                                                      @RequestParam(required = false) String title,
+                                                      @RequestParam(required = false) BookGenre genre,
+                                                      @RequestParam(required = false) Integer publishDate,
+                                                      @RequestParam(defaultValue = "0") Integer page,
+                                                      @RequestParam(defaultValue = "10") Integer size){
+        Page<Book> response = service.search(isbn, authorName, title, genre, publishDate, page, size);
+        Page<ResultBookDTO> bookList = response
+                .map(mapper::toResultDTO);
 
         return ResponseEntity.ok(bookList);
     }

@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
         return new ResponseError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(), List.of());
     }
 
-    @ExceptionHandler(AuthorNotFoundException.class)
+    @ExceptionHandler(BookNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseError handleBookNotFoundException(BookNotFoundException e){
         return new ResponseError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(), List.of());

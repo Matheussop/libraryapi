@@ -1,5 +1,7 @@
 package io.github.libraryapi.config;
 
+import io.github.libraryapi.security.CustomUserDetailsService;
+import io.github.libraryapi.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -7,6 +9,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,12 +22,13 @@ public class SecurityConfiguration {
     public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(configurer -> configurer.loginPage("/login").permitAll())
+                .formLogin(configurer -> configurer.loginPage("/login"))
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(authorizeRequests ->{
-                    authorizeRequests.requestMatchers(HttpMethod.POST,"/api/users/**").permitAll();
-                    authorizeRequests.requestMatchers("/api/books/**").permitAll();
-                    authorizeRequests.requestMatchers("/api/authors/**").permitAll();
+                    authorizeRequests.requestMatchers("/login/**").permitAll();
+                    authorizeRequests.requestMatchers(HttpMethod.POST, "/api/users/**").permitAll();
+                    authorizeRequests.requestMatchers("/api/books/**").hasRole("ADMIN");
+                    authorizeRequests.requestMatchers("/api/authors/**").hasRole("USER");
                     authorizeRequests.anyRequest().authenticated();
                 })
                 .build();
@@ -33,5 +37,10 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder(10);
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(UserService service){
+        return new CustomUserDetailsService(service);
     }
 }

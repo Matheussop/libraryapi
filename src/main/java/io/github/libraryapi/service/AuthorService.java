@@ -5,8 +5,10 @@ import io.github.libraryapi.controller.mappers.AuthorMapper;
 import io.github.libraryapi.exception.AuthorNotFoundException;
 import io.github.libraryapi.exception.OperationNotAllowedException;
 import io.github.libraryapi.model.Author;
+import io.github.libraryapi.model.User;
 import io.github.libraryapi.repository.AuthorRepository;
 import io.github.libraryapi.repository.BookRepository;
+import io.github.libraryapi.security.SecurityService;
 import io.github.libraryapi.validator.AuthorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
@@ -23,10 +25,13 @@ public class AuthorService {
     private final AuthorRepository repository;
     private final AuthorValidator validator;
     private final BookRepository bookRepository;
+    private final SecurityService securityService;
     private final AuthorMapper mapper;
 
     public void save(Author author) {
         validator.validate(author);
+        User userLogged = securityService.getLoggedUser();
+        author.setUserId(userLogged.getId());
         repository.save(author);
     }
 

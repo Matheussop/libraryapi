@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/authors")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AuthorController implements GenericController {
 
     private final AuthorService service;
@@ -56,6 +58,7 @@ public class AuthorController implements GenericController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<AuthorDTO>> findAll() {
         List<Author> authors = service.findAll();
         List<AuthorDTO> authorDTOs = authors.stream()

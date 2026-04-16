@@ -42,6 +42,7 @@ public class Author {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "id_user")
-    private UUID userId;
+    @JoinColumn(name = "id_user")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 }

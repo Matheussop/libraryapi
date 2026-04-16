@@ -6,8 +6,10 @@ import io.github.libraryapi.exception.BookNotFoundException;
 import io.github.libraryapi.model.Author;
 import io.github.libraryapi.model.Book;
 import io.github.libraryapi.model.BookGenre;
+import io.github.libraryapi.model.User;
 import io.github.libraryapi.repository.AuthorRepository;
 import io.github.libraryapi.repository.BookRepository;
+import io.github.libraryapi.security.SecurityService;
 import io.github.libraryapi.validator.BookValidator;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class BookService {
     private final BookRepository repository;
     private final AuthorRepository authorRepository;
     private final BookValidator validator;
+    private final SecurityService securityService;
     private final BookMapper mapper;
 
     public UUID save(CreateBookDTO dto) {
@@ -35,7 +38,9 @@ public class BookService {
         Book book = mapper.toEntity(dto);
         book.setAuthor(author);
 
+        User userLogged = securityService.getLoggedUser();
         validator.validate(book);
+        book.setUser(userLogged);
         return repository.save(book).getId();
     }
 

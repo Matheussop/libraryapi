@@ -31,7 +31,7 @@ public class AuthorService {
     public void save(Author author) {
         validator.validate(author);
         User userLogged = securityService.getLoggedUser();
-        author.setUserId(userLogged.getId());
+        author.setUser(userLogged);
         repository.save(author);
     }
 
@@ -48,28 +48,6 @@ public class AuthorService {
 
     public List<Author> findAll() {
         return repository.findAll();
-    }
-
-    public List<Author> findByName(String name) {
-        return repository.findAll().stream()
-                .filter(author -> author.getName().equalsIgnoreCase(name))
-                .toList();
-    }
-
-    public List<Author> search(String name, String nationality) {
-        if (name != null && nationality != null) {
-            return repository.findAll().stream()
-                    .filter(author -> (author.getName().equalsIgnoreCase(name)) && (author.getNationality().equalsIgnoreCase(nationality)))
-                    .toList();
-        } else if (name != null) {
-            return findByName(name);
-        } else if (nationality != null) {
-            return repository.findAll().stream()
-                    .filter(author -> author.getNationality().equalsIgnoreCase(nationality))
-                    .toList();
-        } else {
-            return findAll();
-        }
     }
 
     public List<Author> searchByExample(String name, String nationality) {

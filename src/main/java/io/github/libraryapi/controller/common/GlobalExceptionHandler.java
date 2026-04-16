@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 
 import io.github.libraryapi.controller.dto.ErrorField;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -66,9 +67,17 @@ public class GlobalExceptionHandler {
         return new ResponseError(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(), List.of());
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseError handleAccessDeniedException(AccessDeniedException e){
+        return new ResponseError(HttpStatus.FORBIDDEN.value(),"Access denied.", List.of());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseError handleGenericException(RuntimeException e) {
         return new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(),"An unexpected error occurred: " + e.getMessage(), List.of());
     }
+
+
 }
